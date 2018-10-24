@@ -2,28 +2,50 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Socket.io</title>
+        <title>SCProject</title>
     </head>
  
     <body>
-        <h1>Communication with socket.io!</h1>
+        <h1 style="color:chocolate">Super Chat Project</h1>
         <div>
-            <input type="button" value="Poke the server" id="poke"/>
+            <span>
+                <input type="text" placeholder="Type a message" oninput="sendMsg()" id="form_msg" autocomplete="off"/>
+                <button type="submit" id="send_msg" onclick="sendMsg()">Send</button>
+            </span>
+        </div>
+        <div id="msgs_list">
+            <ul>
+            </ul>
         </div>
 
         <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             var socket = io.connect('http://localhost:8080');
-            socket.on('message', function(msg){
-                console.log('Client connected to the server');
-                alert(msg);
-            })
 
-            $('#poke').on('click', function() {
-                console.log('poke clicked');
-                socket.emit('message', 'Hi server, how are you?');
-            })
+            var username = prompt('Choose a user name:');
+
+            socket.emit('username', username);
+
+            function sendMsg(){
+                let msg = $('#form_msg').val();
+                console.log(msg);
+                $('#form_msg').val('');
+                $('#msgs_list ul').append('<li>'+username+': '+msg+'</li>');
+                socket.emit('msg', msg);
+            };
+            
+            socket.on('start_chat', function(msg){
+                console.log(msg);
+                $('#msgs_list ul').append('<li style="font-style:italic">'+username+' welcome to the Super Chat Project</li>');
+            });
+
+            socket.on('msg', function(obj){
+                var user = JSON.parse(obj).username;
+                var text = JSON.parse(obj).text;
+                $('#msgs_list ul').append('<li>'+user+': '+text+'</li>');
+            });
+
         </script>
     </body>
 </html>

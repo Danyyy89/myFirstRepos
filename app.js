@@ -11,17 +11,25 @@ var server = http.createServer( function(req, res){
 });
 
 // Attendo che un client si connetta al server
-var sock = require('socket.io').listen(server);
+var socket = require('socket.io').listen(server);
 
 // In caso di connessione stampo un messaggio su console
-sock.sockets.on('connection', function(socket){
-    console.log('A client is connected!');
+socket.sockets.on('connection', function(socket){
     socket.emit('message', 'You are connected!');
-    socket.broadcast.emit('message', 'Another client has just connected!');
     
     socket.on('message', function(msg){
-        console.log(JSON.stringify(socket));
+        console.log(socket.username+': '+msg);
+    });
+
+    socket.on('username', function(username){
+        socket.username = username;
+        socket.emit('start_chat', username+' welcome to the Super Chat Project');
+    });
+
+    socket.on('msg', function(msg){
         console.log(msg);
+        var obj = {username: socket.username, text: msg};
+        socket.broadcast.emit('msg', JSON.stringify(obj));
     });
 });
 
