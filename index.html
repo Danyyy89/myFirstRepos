@@ -9,12 +9,12 @@
         <h1 style="color:chocolate">Super Chat Project</h1>
         <div>
             <span>
-                <input type="text" placeholder="Type a message" oninput="sendMsg()" id="form_msg" autocomplete="off"/>
+                <input type="text" autofocus placeholder="Type a message" onkeypress="sendMsg(event)" id="form_msg" autocomplete="off"/>
                 <button type="submit" id="send_msg" onclick="sendMsg()">Send</button>
             </span>
         </div>
         <div id="msgs_list">
-            <ul>
+            <ul style="list-style: none">
             </ul>
         </div>
 
@@ -27,11 +27,13 @@
 
             socket.emit('username', username);
 
-            function sendMsg(){
+            function sendMsg(event){
+                if(event.type === 'keypress'){
+                    if(event.keyCode != 13) return;
+                }
                 let msg = $('#form_msg').val();
-                console.log(msg);
                 $('#form_msg').val('');
-                $('#msgs_list ul').append('<li>'+username+': '+msg+'</li>');
+                $('#msgs_list ul').append('<li><strong style="background-color:black;color:white">'+username+'</strong>: '+msg+'</li>');
                 socket.emit('msg', msg);
             };
             
@@ -43,7 +45,7 @@
             socket.on('msg', function(obj){
                 var user = JSON.parse(obj).username;
                 var text = JSON.parse(obj).text;
-                $('#msgs_list ul').append('<li>'+user+': '+text+'</li>');
+                $('#msgs_list ul').append('<li><strong style="background-color:black;color:white">'+user+'</strong>: '+text+'</li>');
             });
 
         </script>
